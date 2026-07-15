@@ -26,17 +26,34 @@ jobs:
     - name: Package Artifacts
       run: |
         mkdir -p deploy
-        echo "Searching for JAR files..."
-        ls -R gateway-service/build/libs/
-        ls -R inventory-service/build/libs/
+        echo "Searching for JAR files in $(pwd)"
+        
+        # Build specifically to ensure JARs are created
+        ./gradlew :gateway-service:bootJar :inventory-service:bootJar
+        
+        echo "Listing build/libs directories:"
+        ls -R gateway-service/build/libs/ || echo "gateway-service/build/libs/ not found"
+        ls -R inventory-service/build/libs/ || echo "inventory-service/build/libs/ not found"
         
         GATEWAY_JAR=$(find gateway-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" | head -n 1)
         INVENTORY_JAR=$(find inventory-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" | head -n 1)
         
+        if [ -z "$GATEWAY_JAR" ]; then 
+          echo "Gateway JAR not found, trying fallback search..."
+          GATEWAY_JAR=$(find . -name "gateway-service*.jar" ! -name "*-plain.jar" | head -n 1)
+        fi
+        
+        if [ -z "$INVENTORY_JAR" ]; then 
+          echo "Inventory JAR not found, trying fallback search..."
+          INVENTORY_JAR=$(find . -name "inventory-service*.jar" ! -name "*-plain.jar" | head -n 1)
+        fi
+        
         if [ -z "$GATEWAY_JAR" ]; then echo "Gateway JAR not found"; exit 1; fi
         if [ -z "$INVENTORY_JAR" ]; then echo "Inventory JAR not found"; exit 1; fi
         
+        echo "Copying $GATEWAY_JAR to deploy/gateway-service.jar"
         cp "$GATEWAY_JAR" deploy/gateway-service.jar
+        echo "Copying $INVENTORY_JAR to deploy/inventory-service.jar"
         cp "$INVENTORY_JAR" deploy/inventory-service.jar
         
         echo "Contents of deploy directory:"
