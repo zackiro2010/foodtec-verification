@@ -150,4 +150,23 @@ class GatewayControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("An unexpected error occurred", response.getBody());
     }
+
+    @Test
+    void testTrailingSlashEndpoints() {
+        Object mockProduct = new Object();
+        ResponseEntity<Object> mockResponse = new ResponseEntity<>(mockProduct, HttpStatus.OK);
+
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(Object.class)
+        )).thenReturn(mockResponse);
+
+        ResponseEntity<?> responsePublic = gatewayController.getPublicProduct("1");
+        assertEquals(HttpStatus.OK, responsePublic.getStatusCode());
+
+        ResponseEntity<?> responseSecure = gatewayController.getSecureProduct("2");
+        assertEquals(HttpStatus.OK, responseSecure.getStatusCode());
+    }
 }
