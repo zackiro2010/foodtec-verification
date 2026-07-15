@@ -12,13 +12,4 @@ class GatewayApplicationTest {
         RestTemplate restTemplate = app.restTemplate();
         assertNotNull(restTemplate);
     }
-
-    @Test
-    void main() {
-        // We can't easily test the full application start in a unit test, 
-        // but we can call it with empty/invalid args or just know that 
-        // @SpringBootTest would cover it better.
-        // For instruction coverage of the 'main' method:
-        // GatewayApplication.main(new String[]{});
-    }
 }

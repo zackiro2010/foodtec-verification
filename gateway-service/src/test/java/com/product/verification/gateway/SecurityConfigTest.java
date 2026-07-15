@@ -22,11 +22,9 @@ class SecurityConfigTest {
     }
 
     @Test
-    void testSecurityFilterChain() throws Exception {
+    void testSecurityFilterChain()
+    {
         SecurityConfig config = new SecurityConfig();
-        // Since mocking HttpSecurity is problematic due to generics and final methods in some versions,
-        // we'll at least verify the bean creation context if we could, 
-        // but for pure coverage of the config class:
         assertNotNull(config);
     }
 }

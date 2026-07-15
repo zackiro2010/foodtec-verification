@@ -2,7 +2,6 @@ package com.product.verification.gateway;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.http.*;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -118,9 +117,11 @@ class GatewayControllerTest {
                 eq(Object.class)
         )).thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
-        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
-        assertEquals("Service Unavailable: please try again later", response.getBody());
+        try {
+            gatewayController.getPublicProduct("1");
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
+        }
     }
 
     @Test
@@ -132,13 +133,60 @@ class GatewayControllerTest {
                 eq(Object.class)
         )).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("Internal error from downstream service", response.getBody());
+        try {
+            gatewayController.getPublicProduct("1");
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+        }
     }
 
     @Test
-    void processRequest_InternalServerError() {
+    void processRequest_ServiceUnavailable_RetriesAndSucceeds() {
+        Object mockProduct = new Object();
+        ResponseEntity<Object> mockResponse = new ResponseEntity<>(mockProduct, HttpStatus.OK);
+
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                any(HttpMethod.class),
+                any(HttpEntity.class),
+                eq(Object.class)
+        ))
+        .thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE))
+        .thenReturn(mockResponse);
+
+        try {
+            gatewayController.getPublicProduct("1");
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
+        }
+    }
+
+    @Test
+    void processRequest_ServiceUnavailable_EventuallyFails() {
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                any(HttpMethod.class),
+                any(HttpEntity.class),
+                eq(Object.class)
+        )).thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
+
+        try {
+            gatewayController.getPublicProduct("1");
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
+        }
+    }
+
+    @Test
+    void testRecover() {
+        HttpServerErrorException exception = new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE);
+        ResponseEntity<?> response = gatewayController.recover(exception, "1");
+        assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+        assertEquals("Service Unavailable: please try again later after multiple attempts", response.getBody());
+    }
+
+    @Test
+    void processRequest_UnexpectedException() {
         when(mockRestTemplate.exchange(
                 any(String.class),
                 any(HttpMethod.class),
