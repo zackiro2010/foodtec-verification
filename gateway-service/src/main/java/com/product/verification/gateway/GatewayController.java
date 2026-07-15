@@ -46,7 +46,7 @@ public class GatewayController {
     @Retryable(
             retryFor = {HttpServerErrorException.class},
             maxAttempts = 3,
-            backoff = @Backoff(delay = 90)
+            backoff = @Backoff(delay = 100)
     )
     public ResponseEntity<?> getSecureProduct(@PathVariable String id) {
         logger.info("Secure request for product id: {}", id);
