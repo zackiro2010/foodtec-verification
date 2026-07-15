@@ -26,8 +26,21 @@ jobs:
     - name: Package Artifacts
       run: |
         mkdir -p deploy
-        find gateway-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" -exec cp {} deploy/gateway-service.jar \;
-        find inventory-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" -exec cp {} deploy/inventory-service.jar \;
+        echo "Searching for JAR files..."
+        ls -R gateway-service/build/libs/
+        ls -R inventory-service/build/libs/
+        
+        GATEWAY_JAR=$(find gateway-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" | head -n 1)
+        INVENTORY_JAR=$(find inventory-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" | head -n 1)
+        
+        if [ -z "$GATEWAY_JAR" ]; then echo "Gateway JAR not found"; exit 1; fi
+        if [ -z "$INVENTORY_JAR" ]; then echo "Inventory JAR not found"; exit 1; fi
+        
+        cp "$GATEWAY_JAR" deploy/gateway-service.jar
+        cp "$INVENTORY_JAR" deploy/inventory-service.jar
+        
+        echo "Contents of deploy directory:"
+        ls -l deploy/
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
