@@ -24,6 +24,7 @@ class InventoryControllerTest {
         // By default, simulate no service failure (random >= 10)
         when(mockRandom.nextInt(anyInt())).thenReturn(50);
         inventoryController = new InventoryController(mockRandom);
+        org.springframework.test.util.ReflectionTestUtils.setField(inventoryController, "validServiceKey", VALID_KEY);
     }
 
     @Test

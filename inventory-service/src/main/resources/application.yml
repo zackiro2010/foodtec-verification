@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+inventory:
+  service:
+    key: internal-secret-key
+
 logging:
   level:
     com.product.verification.inventory: DEBUG

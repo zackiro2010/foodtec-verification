@@ -19,7 +19,7 @@ public class GatewayController {
     @Value("${inventory.service.url:http://localhost:8081/internal/check/}")
     private String inventoryServiceUrl;
 
-    @Value("${inventory.service.key:internal-secret-key}")
+    @Value("${inventory.service.key}")
     private String inventoryServiceKey;
 
     private final RestTemplate restTemplate;
