@@ -1,11 +1,10 @@
 server:
   port: 8080
 
-foodtec:
-  inventory:
-    service:
-      url: http://localhost:8081/internal/food-items/
-      key: internal-secret-key
+inventory:
+  service:
+    url: http://localhost:8081/internal/check/
+    key: internal-secret-key
 
 logging:
   level:
