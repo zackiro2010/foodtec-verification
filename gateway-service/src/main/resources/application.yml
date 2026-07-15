@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+inventory:
+  service:
+    url: http://localhost:8081/internal/check/
+    key: internal-secret-key
+
+logging:
+  level:
+    com.product.verification.gateway: DEBUG
