@@ -19,7 +19,7 @@ public class GatewayController {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayController.class);
 
-    @Value("${inventory.service.url:http://localhost:8081/internal/check/}")
+    @Value("${inventory.service.url}")
     private String inventoryServiceUrl;
 
     @Value("${inventory.service.key}")
@@ -34,7 +34,6 @@ public class GatewayController {
     @GetMapping({"/public/products/{id}", "/public/products/{id}/"})
     @Retryable(
             retryFor = {HttpServerErrorException.class},
-            maxAttempts = 3,
             backoff = @Backoff(delay = 100)
     )
     public ResponseEntity<?> getPublicProduct(@PathVariable String id) {
@@ -45,7 +44,6 @@ public class GatewayController {
     @GetMapping({"/secure/products/{id}", "/secure/products/{id}/"})
     @Retryable(
             retryFor = {HttpServerErrorException.class},
-            maxAttempts = 3,
             backoff = @Backoff(delay = 100)
     )
     public ResponseEntity<?> getSecureProduct(@PathVariable String id) {
