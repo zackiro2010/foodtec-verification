@@ -14,23 +14,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-class FoodTecGatewayControllerTest {
+class GatewayControllerTest {
 
-    private FoodTecGatewayController gatewayController;
+    private GatewayController gatewayController;
     private RestTemplate mockRestTemplate;
-    private static final String INVENTORY_URL = "http://localhost:8081/internal/food-items/";
+    private static final String INVENTORY_URL = "http://localhost:8081/internal/check/";
     private static final String INVENTORY_KEY = "internal-secret-key";
 
     @BeforeEach
     void setUp() {
         mockRestTemplate = Mockito.mock(RestTemplate.class);
-        gatewayController = new FoodTecGatewayController(mockRestTemplate);
+        gatewayController = new GatewayController(mockRestTemplate);
         ReflectionTestUtils.setField(gatewayController, "inventoryServiceUrl", INVENTORY_URL);
         ReflectionTestUtils.setField(gatewayController, "inventoryServiceKey", INVENTORY_KEY);
     }
 
     @Test
-    void getPublicFoodItem_Success() {
+    void getPublicProduct_Success() {
         Object mockProduct = new Object();
         ResponseEntity<Object> mockResponse = new ResponseEntity<>(mockProduct, HttpStatus.OK);
 
@@ -41,14 +41,14 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenReturn(mockResponse);
 
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("1");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProduct, response.getBody());
     }
 
     @Test
-    void getSecureFoodItem_Success() {
+    void getSecureProduct_Success() {
         Object mockProduct = new Object();
         ResponseEntity<Object> mockResponse = new ResponseEntity<>(mockProduct, HttpStatus.OK);
 
@@ -59,7 +59,7 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenReturn(mockResponse);
 
-        ResponseEntity<?> response = gatewayController.getSecureFoodItem("2");
+        ResponseEntity<?> response = gatewayController.getSecureProduct("2");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockProduct, response.getBody());
@@ -67,20 +67,20 @@ class FoodTecGatewayControllerTest {
 
     @Test
     void processRequest_InvalidId() {
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("abc");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("abc");
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     void processRequest_InvalidId_Negative() {
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("-1");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("-1");
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid food item ID. Must be a positive number.", response.getBody());
+        assertEquals("Invalid product ID. Must be a positive number.", response.getBody());
     }
 
     @Test
     void processRequest_NotFound() {
-        String errorMessage = "Food item not found with id: 99";
+        String errorMessage = "Product not found with id: 99";
         when(mockRestTemplate.exchange(
                 any(String.class),
                 any(HttpMethod.class),
@@ -88,7 +88,7 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "Not Found", new HttpHeaders(), errorMessage.getBytes(), null));
 
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("99");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("99");
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(errorMessage, response.getBody());
     }
@@ -103,7 +103,7 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenThrow(HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", new HttpHeaders(), errorMessage.getBytes(), null));
 
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("1");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertEquals(errorMessage, response.getBody());
     }
@@ -118,7 +118,7 @@ class FoodTecGatewayControllerTest {
         )).thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
         try {
-            gatewayController.getPublicFoodItem("1");
+            gatewayController.getPublicProduct("1");
         } catch (HttpServerErrorException e) {
             assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
         }
@@ -134,7 +134,7 @@ class FoodTecGatewayControllerTest {
         )).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         try {
-            gatewayController.getPublicFoodItem("1");
+            gatewayController.getPublicProduct("1");
         } catch (HttpServerErrorException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
         }
@@ -155,7 +155,7 @@ class FoodTecGatewayControllerTest {
         .thenReturn(mockResponse);
 
         try {
-            gatewayController.getPublicFoodItem("1");
+            gatewayController.getPublicProduct("1");
         } catch (HttpServerErrorException e) {
             assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
         }
@@ -171,7 +171,7 @@ class FoodTecGatewayControllerTest {
         )).thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
         try {
-            gatewayController.getPublicFoodItem("1");
+            gatewayController.getPublicProduct("1");
         } catch (HttpServerErrorException e) {
             assertEquals(HttpStatus.SERVICE_UNAVAILABLE, e.getStatusCode());
         }
@@ -194,7 +194,7 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenThrow(new RuntimeException("Unexpected error"));
 
-        ResponseEntity<?> response = gatewayController.getPublicFoodItem("1");
+        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("An unexpected error occurred", response.getBody());
     }
@@ -211,10 +211,10 @@ class FoodTecGatewayControllerTest {
                 eq(Object.class)
         )).thenReturn(mockResponse);
 
-        ResponseEntity<?> responsePublic = gatewayController.getPublicFoodItem("1");
+        ResponseEntity<?> responsePublic = gatewayController.getPublicProduct("1");
         assertEquals(HttpStatus.OK, responsePublic.getStatusCode());
 
-        ResponseEntity<?> responseSecure = gatewayController.getSecureFoodItem("2");
+        ResponseEntity<?> responseSecure = gatewayController.getSecureProduct("2");
         assertEquals(HttpStatus.OK, responseSecure.getStatusCode());
     }
 }

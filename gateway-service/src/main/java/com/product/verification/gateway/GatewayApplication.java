@@ -8,9 +8,9 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableRetry
-public class FoodTecGatewayApplication {
+public class GatewayApplication {
     public static void main(String[] args) {
-        SpringApplication.run(FoodTecGatewayApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
     @Bean
