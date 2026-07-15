@@ -2,6 +2,7 @@ package com.product.verification.inventory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,9 @@ public class InventoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(InventoryController.class);
     private static final String SERVICE_KEY_HEADER = "X-Service-Key";
-    private static final String VALID_SERVICE_KEY = "internal-secret-key";
+
+    @Value("${inventory.service.key}")
+    private String validServiceKey;
 
     private final Map<String, Product> productData = new ConcurrentHashMap<>();
     private final Random random;
@@ -43,7 +46,7 @@ public class InventoryController {
         logger.info("Received request for product id: {}", id);
 
         // Header Auth Validation
-        if (serviceKey == null || !serviceKey.equals(VALID_SERVICE_KEY)) {
+        if (serviceKey == null || !serviceKey.equals(validServiceKey)) {
             logger.warn("Unauthorized access attempt with key: {}", serviceKey);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Forbidden: Invalid Service Key");
         }
