@@ -67,3 +67,17 @@ curl http://localhost:8080/public/products/99
 - **Logging** is implemented using SLF4J/Logback (default in Spring Boot).
 - The 10% failure rate in Inventory Service is implemented using `java.util.Random`.
 - Internal communication uses a hardcoded API key for simplicity, configurable via `application.properties`.
+
+
+## Future Roadmap (TODO)
+
+### 1. Containerization & Orchestration
+- **Docker:** Create `Dockerfile` for both Gateway and Inventory services to ensure consistent environments across development and production.
+- **Kubernetes:** Define K8s manifests (Deployments, Services, ConfigMaps) to manage scaling, health checks, and service discovery.
+
+### 2. Intelligent Search Agent (AI Integration)
+- **Semantic Search:** Implement Spring AI with a Vector Store (e.g., SimpleVectorStore) to allow natural language product queries 
+- (e.g., "Find me something cheesy under $15") rather than just a numeric ID.
+- **AI Recommendation Agent:** Add a fallback mechanism that suggests similar products using vector similarity scores when a specific ID lookup fails.
+- **Embedding Models:** Integrate OpenAI or local Transformers models to generate embeddings for product names and descriptions.
+
