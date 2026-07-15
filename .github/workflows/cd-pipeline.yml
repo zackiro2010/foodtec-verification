@@ -26,8 +26,8 @@ jobs:
     - name: Package Artifacts
       run: |
         mkdir -p deploy
-        cp gateway-service/build/libs/*.jar deploy/gateway-service.jar
-        cp inventory-service/build/libs/*.jar deploy/inventory-service.jar
+        find gateway-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" -exec cp {} deploy/gateway-service.jar \;
+        find inventory-service/build/libs/ -name "*.jar" ! -name "*-plain.jar" -exec cp {} deploy/inventory-service.jar \;
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
