@@ -64,9 +64,6 @@ public class GatewayController {
 
         } catch (HttpClientErrorException e) {
             logger.warn("Inventory Service returned error: {} for id: {}", e.getStatusCode(), id);
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         } catch (HttpServerErrorException e) {
             logger.error("Inventory Service error: {} for id: {}", e.getStatusCode(), id);

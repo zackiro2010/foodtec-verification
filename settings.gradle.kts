@@ -1,3 +1,0 @@
-rootProject.name = "product-verification-system"
-include("gateway-service")
-include("inventory-service")

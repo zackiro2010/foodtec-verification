@@ -19,15 +19,20 @@ public class InventoryController {
     private static final String VALID_SERVICE_KEY = "internal-secret-key";
 
     private final Map<String, Product> productData = new ConcurrentHashMap<>();
-    private final Random random = new Random();
-
+    private final Random random;
+    
     public InventoryController() {
+        this(new Random());
+    }
+
+    public InventoryController(Random random) {
+        this.random = random;
         // Initialize in-memory product list
-        productData.put("1", new Product("1", "Laptop", "High-performance laptop", 1200.00));
-        productData.put("2", new Product("2", "Smartphone", "Latest model smartphone", 800.00));
-        productData.put("3", new Product("3", "Headphones", "Noise-cancelling headphones", 250.00));
-        productData.put("4", new Product("4", "Monitor", "4K Ultra HD monitor", 450.00));
-        productData.put("5", new Product("5", "Keyboard", "Mechanical gaming keyboard", 120.00));
+        productData.put("1", new Product("1", "Pizza", "Delicious cheese pizza", 12.99));
+        productData.put("2", new Product("2", "Subs", "Fresh Italian sub", 8.50));
+        productData.put("3", new Product("3", "Drinks", "Refreshing soft drink", 1.99));
+        productData.put("4", new Product("4", "Pasta", "Creamy Alfredo pasta", 11.00));
+        productData.put("5", new Product("5", "Salad", "Healthy Caesar salad", 7.25));
     }
 
     @GetMapping("/check/{id}")
@@ -59,7 +64,7 @@ public class InventoryController {
         Product product = productData.get(id);
         if (product == null) {
             logger.info("Product not found: {}", id);
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found with id: " + id);
         }
 
         logger.info("Product found: {}", product.name());
