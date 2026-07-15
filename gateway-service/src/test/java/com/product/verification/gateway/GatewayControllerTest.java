@@ -73,6 +73,13 @@ class GatewayControllerTest {
     }
 
     @Test
+    void processRequest_InvalidId_Negative() {
+        ResponseEntity<?> response = gatewayController.getPublicProduct("-1");
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Invalid product ID. Must be a positive number.", response.getBody());
+    }
+
+    @Test
     void processRequest_NotFound() {
         String errorMessage = "Product not found with id: 99";
         when(mockRestTemplate.exchange(
@@ -84,6 +91,21 @@ class GatewayControllerTest {
 
         ResponseEntity<?> response = gatewayController.getPublicProduct("99");
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(errorMessage, response.getBody());
+    }
+
+    @Test
+    void processRequest_Forbidden() {
+        String errorMessage = "Forbidden: Invalid Service Key";
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                any(HttpMethod.class),
+                any(HttpEntity.class),
+                eq(Object.class)
+        )).thenThrow(HttpClientErrorException.create(HttpStatus.FORBIDDEN, "Forbidden", new HttpHeaders(), errorMessage.getBytes(), null));
+
+        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertEquals(errorMessage, response.getBody());
     }
 
@@ -102,6 +124,20 @@ class GatewayControllerTest {
     }
 
     @Test
+    void processRequest_OtherServerError() {
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                any(HttpMethod.class),
+                any(HttpEntity.class),
+                eq(Object.class)
+        )).thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        ResponseEntity<?> response = gatewayController.getPublicProduct("1");
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Internal error from downstream service", response.getBody());
+    }
+
+    @Test
     void processRequest_InternalServerError() {
         when(mockRestTemplate.exchange(
                 any(String.class),
@@ -112,5 +148,25 @@ class GatewayControllerTest {
 
         ResponseEntity<?> response = gatewayController.getPublicProduct("1");
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("An unexpected error occurred", response.getBody());
+    }
+
+    @Test
+    void testTrailingSlashEndpoints() {
+        Object mockProduct = new Object();
+        ResponseEntity<Object> mockResponse = new ResponseEntity<>(mockProduct, HttpStatus.OK);
+
+        when(mockRestTemplate.exchange(
+                any(String.class),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(Object.class)
+        )).thenReturn(mockResponse);
+
+        ResponseEntity<?> responsePublic = gatewayController.getPublicProduct("1");
+        assertEquals(HttpStatus.OK, responsePublic.getStatusCode());
+
+        ResponseEntity<?> responseSecure = gatewayController.getSecureProduct("2");
+        assertEquals(HttpStatus.OK, responseSecure.getStatusCode());
     }
 }
