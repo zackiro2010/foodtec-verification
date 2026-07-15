@@ -24,6 +24,11 @@ This is a Dual-Service Product Verification System built with Spring Boot and Gr
     - In-memory product data.
     - Simulated 10% Service Unavailable (503) failure rate.
 
+## Resilience & Best Practices
+
+- **Retry Mechanism:** The Gateway Service uses **Spring Retry** to handle transient `503 Service Unavailable` errors from the Inventory Service. It will automatically retry the request up to **3 times** with a short delay (100ms) before returning an error to the client. This mitigates the impact of the simulated 10% failure rate.
+- **AOP-based Implementation:** Uses `@EnableRetry` and `@Retryable` for a clean, declarative implementation.
+
 ## How to Run
 
 1.  **Clone the repository.**
