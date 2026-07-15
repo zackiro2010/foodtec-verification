@@ -1,32 +1,32 @@
-# Product Verification System
+# FoodTec Food Item Verification System
 
-This is a Dual-Service Product Verification System built with Spring Boot and Gradle.
+This is a Dual-Service Food Item Verification System built for **FoodTec**, a restaurant software provider.
 
 ## Components
 
-### 1. Gateway Service (Service A)
+### 1. FoodTec Gateway Service (Service A)
 - **Port:** 8080
-- **Public Endpoint:** `GET /public/products/{id}`
-- **Secure Endpoint:** `GET /secure/products/{id}` (Requires Basic Auth)
+- **Public Endpoint:** `GET /public/food-items/{id}`
+- **Secure Endpoint:** `GET /secure/food-items/{id}` (Requires Basic Auth)
 - **Features:**
     - ID validation (must be positive numeric).
-    - Forwards requests to Inventory Service using an internal API key.
+    - Forwards requests to FoodTec Inventory Service using an internal API key.
     - Basic Authentication:
         - **Username:** `user`
         - **Password:** `password`
 
-### 2. Inventory Service (Service B)
+### 2. FoodTec Inventory Service (Service B)
 - **Port:** 8081
-- **Internal Endpoint:** `GET /internal/check/{id}`
+- **Internal Endpoint:** `GET /internal/food-items/{id}`
 - **Features:**
     - Custom Header Authentication (`X-Service-Key: internal-secret-key`).
     - ID validation.
-    - In-memory product data.
+    - In-memory food item data (Pizza, Subs, Drinks, etc.).
     - Simulated 10% Service Unavailable (503) failure rate.
 
 ## Resilience & Best Practices
 
-- **Retry Mechanism:** The Gateway Service uses **Spring Retry** to handle transient `503 Service Unavailable` errors from the Inventory Service. It will automatically retry the request up to **3 times** with a short delay (100ms) before returning an error to the client. This mitigates the impact of the simulated 10% failure rate.
+- **Retry Mechanism:** The Gateway Service uses **Spring Retry** to handle transient `503 Service Unavailable` errors from the Inventory Service. It will automatically retry the request up to **3 times** with a short delay (100ms) before returning an error to the client.
 - **AOP-based Implementation:** Uses `@EnableRetry` and `@Retryable` for a clean, declarative implementation.
 
 ## How to Run
@@ -34,39 +34,39 @@ This is a Dual-Service Product Verification System built with Spring Boot and Gr
 1.  **Clone the repository.**
 2.  **Open as a Gradle project** in IntelliJ IDEA or Eclipse.
 3.  **Run Inventory Service:**
-    - Navigate to `inventory-service` and run `com.product.verification.inventory.InventoryApplication`.
+    - Navigate to `inventory-service` and run `com.product.verification.inventory.FoodTecInventoryApplication`.
 4.  **Run Gateway Service:**
-    - Navigate to `gateway-service` and run `com.product.verification.gateway.GatewayApplication`.
+    - Navigate to `gateway-service` and run `com.product.verification.gateway.FoodTecGatewayApplication`.
 
 ## Testing the API
 
 ### Public Access
 ```bash
-curl http://localhost:8080/public/products/1
+curl http://localhost:8080/public/food-items/1
 ```
 
 ### Secure Access (Authorized)
 ```bash
-curl -u user:password http://localhost:8080/secure/products/2
+curl -u user:password http://localhost:8080/secure/food-items/2
 ```
 
 ### Secure Access (Unauthorized)
 ```bash
-curl http://localhost:8080/secure/products/2
+curl http://localhost:8080/secure/food-items/2
 ```
 
 ### Invalid ID
 ```bash
-curl http://localhost:8080/public/products/abc
+curl http://localhost:8080/public/food-items/abc
 ```
 
-### Non-existent Product
+### Non-existent Food Item
 ```bash
-curl http://localhost:8080/public/products/99
+curl http://localhost:8080/public/food-items/99
 ```
 
 ## Assumptions & Design Decisions
-- **Java 17+** is used (utilizing `record` for `Product`).
+- **Java 17+** is used (utilizing `record` for `FoodItem`).
 - **Spring Security** is used for Basic Auth in Gateway Service.
 - **RestTemplate** is used for service-to-service communication.
 - **Logging** is implemented using SLF4J/Logback (default in Spring Boot).

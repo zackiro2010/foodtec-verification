@@ -1,9 +1,10 @@
 server:
   port: 8081
 
-inventory:
-  service:
-    key: internal-secret-key
+foodtec:
+  inventory:
+    service:
+      key: internal-secret-key
 
 logging:
   level:
