@@ -4,11 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class GatewayApplicationTest {
+class FoodTecGatewayApplicationTest {
 
     @Test
     void testRestTemplateBean() {
-        GatewayApplication app = new GatewayApplication();
+        FoodTecGatewayApplication app = new FoodTecGatewayApplication();
         RestTemplate restTemplate = app.restTemplate();
         assertNotNull(restTemplate);
     }
